@@ -10,6 +10,26 @@ var dishRouter = require("./routes/dishRouter");
 var promoRouter = require("./routes/promoRouter");
 var leaderRouter = require("./routes/leaderRouter");
 
+const mongoose = require("mongoose");
+
+mongoose.set("useNewUrlParser", true);
+mongoose.set("useFindAndModify", false);
+mongoose.set("useCreateIndex", true);
+mongoose.set("useUnifiedTopology", true);
+
+const Dishes = require("./models/dishes");
+
+const url = "mongodb://localhost:27017/conFusion";
+const connect = mongoose.connect(url);
+
+connect
+  .then((db) => {
+    console.log("Connection Successful");
+  })
+  .catch((err) => {
+    console.log(err);
+  });
+
 var app = express();
 
 // view engine setup
