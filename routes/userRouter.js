@@ -9,9 +9,25 @@ const userRouter = express.Router();
 
 userRouter.use(bodyParser.json());
 
-userRouter.get("/", (req, res, next) => {
-  res.send("respond with a resource");
-});
+userRouter.get(
+  "/",
+  authenticate.verifyUser,
+  authenticate.verifyAdmin,
+  (req, res, next) => {
+    Users.find({})
+      .then(
+        (users) => {
+          res.statusCode = 200;
+          res.setHeader("Content-Type", "application/json");
+          res.json(users);
+        },
+        (err) => next(err)
+      )
+      .catch((err) => {
+        next(err);
+      });
+  }
+);
 
 userRouter.post("/signup", (req, res, next) => {
   Users.register(
@@ -54,7 +70,8 @@ userRouter.post("/login", passport.authenticate("local"), (req, res, next) => {
   });
 });
 
-userRouter.get("/logout", (req, res) => {
+userRouter.get("/logout", (req, res, next) => {
+  console.log(req.session);
   if (req.session) {
     req.session.destroy();
     res.clearCookie("session-id");
