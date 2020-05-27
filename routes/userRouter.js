@@ -70,7 +70,7 @@ userRouter.post("/login", passport.authenticate("local"), (req, res, next) => {
   });
 });
 
-userRouter.get("/logout", (req, res, next) => {
+userRouter.get("/logout", (req, res) => {
   console.log(req.session);
   if (req.session) {
     req.session.destroy();
