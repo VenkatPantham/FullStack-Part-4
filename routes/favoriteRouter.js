@@ -47,7 +47,7 @@ favoriteRouter
           });
           favorite.save().then(
             (favorite) => {
-              Favorites.find({ user: req.user._id })
+              Favorites.findById(favorite._id)
                 .populate("user")
                 .populate("dishes")
                 .then((favorite) => {
@@ -69,7 +69,7 @@ favoriteRouter
             });
             favorite.save().then(
               (favorite) => {
-                Favorites.find({ user: req.user._id })
+                Favorites.findById(favorite._id)
                   .populate("user")
                   .populate("dishes")
                   .then((favorite) => {
@@ -109,6 +109,34 @@ favoriteRouter
   .options(cors.corsWithOptions, (req, res) => {
     res.sendStatus(200);
   })
+  .get(cors.cors, authenticate.verifyUser, (req, res, next) => {
+    Favorites.findOne({ user: req.user._id })
+      .then(
+        (favorites) => {
+          if (!favorites) {
+            res.statusCode = 200;
+            res.setHeader("Content-Type", "application/json");
+            return res.json({ exists: false, favorites: favorites });
+          } else {
+            if (favorites.dishes.indexOf(req.params.dishId) == -1) {
+              res.statusCode = 200;
+              res.setHeader("Content-Type", "application/json");
+              return res.json({ exists: false, favorites: favorites });
+            } else {
+              res.statusCode = 200;
+              res.setHeader("Content-Type", "application/json");
+              return res.json({ exists: true, favorites: favorites });
+            }
+          }
+        },
+        (err) => {
+          next(err);
+        }
+      )
+      .catch((err) => {
+        next(err);
+      });
+  })
   .post(cors.cors, authenticate.verifyUser, (req, res, next) => {
     Dishes.findById(req.params.dishId)
       .then((dish) => {
@@ -126,7 +154,7 @@ favoriteRouter
               }
               favorite.save().then(
                 (favorite) => {
-                  Favorites.find({ user: req.user._id })
+                  Favorites.findById(favorite._id)
                     .populate("user")
                     .populate("dishes")
                     .then((favorite) => {
@@ -142,7 +170,7 @@ favoriteRouter
                 favorite.dishes.push(req.params.dishId);
                 favorite.save().then(
                   (favorite) => {
-                    Favorites.find({ user: req.user._id })
+                    Favorites.findById(favorite._id)
                       .populate("user")
                       .populate("dishes")
                       .then((favorite) => {
@@ -177,7 +205,7 @@ favoriteRouter
               );
               favorite.save().then(
                 (favorite) => {
-                  Favorites.find({ user: req.user._id })
+                  Favorites.findById(favorite._id)
                     .populate("user")
                     .populate("dishes")
                     .then((favorite) => {
